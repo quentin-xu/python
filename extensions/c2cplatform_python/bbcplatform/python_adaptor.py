@@ -1,5 +1,5 @@
 import types
-
+import CWWLog2
 
 class WebServer(object):
     
@@ -34,10 +34,11 @@ def URL(urlPattern):
 
 def invoke(sController, sAction, rParams, rData, rCntl):
     try:
-        print url
+        url = sController + '/' + sAction
         cls, method = WebServer.URLConfig[url.strip().strip('/').lower()]
         return method(cls(), sController, sAction, rParams, rData, rCntl)
     except Exception,e:
-        print 'ERRRRRRRRRRRRROR:',e
-
+        print 'Catch error', e, 'when invoke', sController, sAction
+        CWWLog2.C2C_WW_LOG_ERR(-1, 'Catch error %s when invoke %s/%s', e, sController, sAction)
+        raise e
 

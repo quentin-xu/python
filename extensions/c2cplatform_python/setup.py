@@ -14,7 +14,7 @@ setup(
       author='xuqi',
       author_email='',
       packages=['bbcplatform','jinja2'],
-      data_files=[['bbcplatform',['bbcplatform/confg4set.so']]],
+      data_files=[['bbcplatform',['bbcplatform/confg4set.so', 'bbcplatform/CWWLog.so']]],
       install_requires=['MarkupSafe'],
       extras_require={'i18n': ['Babel>=0.8']},
       include_package_data=True,

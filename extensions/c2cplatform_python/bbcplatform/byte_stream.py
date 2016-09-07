@@ -31,7 +31,7 @@ class ByteStream:
 		self.m_bRealWrite = True
 
 	def setBuffer4Unserialze(self,buffer): 
-		self.m_byPackage = buffer
+		self.m_byPackage = bytearray(buffer)
 		self.m_iBufLen = len(self.m_byPackage)
 		self.m_iOffset = 0
 		self.m_bGood = True
@@ -130,9 +130,9 @@ class ByteStream:
 		if (not self.m_bGood) or (self.m_iOffset+1)>self.m_iBufLen:
 			self.m_bGood=False
 			return
-		b=self.m_byPackage[self.m_iOffset:self.m_iOffset+1]
+		#b=self.m_byPackage[self.m_iOffset:self.m_iOffset+1]
+		v=self.m_byPackage[self.m_iOffset]
 		self.m_iOffset+=1
-		v=unpack('B',b)[0]
 		#print "popByte:"+b.encode('hex')
 		#print unpack('B',b)
 		#print "popByte v:"+str(v)

@@ -133,10 +133,10 @@ int MyWebSvcDispatch(
     {	
       //CGI_ITIL->AddErr("invoke");
         g_oStat.UpdateStatValue(CWebServiceStat::ERR_PKG_SENT, 1);
-        web_solution::web_container::CHttpResponseProcess::Instance()->DoSvrInternalErrResponse(
+        web_solution::web_container::CHttpResponseProcess::Instance()->DoBadRequestResponse(
                 rHttpRequest, rHttpResponse);
         g_AdaptorLog.LogErrMsg("RenderInvoke fail.");
-        rCntl.SetResult(500);
+        rCntl.SetResult(400);
         return -2;
     }
 
@@ -181,6 +181,8 @@ int WebServiceEntryProcess2(const char* pszVhostRootPath,
 		g_oStat.ShowStat();
 			return 0;
 	}
+
+	pHttpResponse->SetMimeType("text/html; charset=utf8");
 
     CActionInvocation* pActionInvocation = CActionInvocation::GetInstance();
 

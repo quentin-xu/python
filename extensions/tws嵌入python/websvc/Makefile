@@ -7,6 +7,7 @@ INCLUDE = -I../src \
 	-I$(INC_EXPORT_PATH)/app_platform \
 	-I$(INC_EXPORT_PATH)/c2cplatform \
 	-I$(INC_EXPORT_PATH)/c2cplatform/library/the3/ \
+	-I/usr/include/python2.6
 
 LIB = -L$(LIB_EXPORT_PATH) \
       -L../../../lib/ -llibrary_algorithm -ltinyxml_pl_inner -llibrary_xml -lxml2\
@@ -15,14 +16,14 @@ LIB = -L$(LIB_EXPORT_PATH) \
 	  -llibrary_log2 -llogclient $(CGI_WEBFRAMEWORK3_LIB) $(CGI_APCGIBASE_LIB)\
 	  -llibrary_rewrite -llibrary_the3_pcre -llibrary_the3_itil -llibrary_the3_tinyxml \
 	  -llibrary_the3_jsoncpp_060 -lc2cplatform_chdog_limit \
-	  -lcomponent_error $(CGI_TEMPLATE_LIB) -llibrary_util
+	  -lcomponent_error $(CGI_TEMPLATE_LIB) -llibrary_util -lpython2.6
 
 VPATH=../lib:../src	
 
-OUTPUT  = python_svc.so
+OUTPUT  = python_module.so
 
 SOURCES = python_svc_adaptor.cpp \
-		  python_svc.cpp 
+		  python_module.cpp 
 
 OBJECTS=$(SOURCES:.cpp=.o)
 		  
@@ -30,7 +31,7 @@ all:$(OUTPUT)
 
 .SUFFIXES: .o .cpp
 .cpp.o:
-	$(CXX) $(CFLAGS) $(INCLUDE) -c $(filter %.cpp, $^) 
+	$(CXX) -std=c++0x $(CFLAGS) $(INCLUDE) -c $(filter %.cpp, $^) 
 
 .o:
 	$(CXX) $(CFLAGS) $(INCLUDE) -o $@ $^

@@ -16,8 +16,12 @@
 #include <list>
 #include <iostream>
 
+#include "c2cent/library/log/CWWLog2.h"
+
 #include "python_module.h"
 #include "pyhttp_object.h"
+
+
 
 namespace web_solution{ namespace web_container_python{
 
@@ -42,7 +46,8 @@ int CPythonModule::Reset() {
 
     char sBuff[256] = { 0 };
     if (getcwd(sBuff, sizeof(sBuff)) == NULL) {
-        cout << "getcwd failed" << endl;
+        cerr << "getcwd failed" << endl;
+	C2C_WW_LOG_ERR(-1, "getcwd failed");
         return -1;
     }
     string strBuff(sBuff);
@@ -55,13 +60,6 @@ int CPythonModule::Reset() {
 
     string strDir = strBuff.substr(0, i) + "/" + loc;
 
-    /*    DIR* dir = opendir(strDir.c_str());
-     
-     if(dir == NULL)
-     {
-     return -1;
-     }*/
-
     struct dirent **namelist;
     int n;
 
@@ -69,7 +67,8 @@ int CPythonModule::Reset() {
 
     n = scandir(strDir.c_str(), &namelist, 0, alphasort);
     if (n < 0) {
-        cout << "scandir:" << strDir << " failed" << endl;
+        cerr << "scandir:" << strDir << " failed" << endl;
+	C2C_WW_LOG_ERR(-1, "scandir failed dir:%s", strDir.c_str());
         return -1;
     } else {
         while (n--) {
@@ -80,7 +79,7 @@ int CPythonModule::Reset() {
     }
 
     for (auto it = lstName.begin(); it != lstName.end(); ++it) {
-        cout << "check " << *it << endl;
+        C2C_WW_LOG("check file %s", it->c_str());
         struct stat st;
         if (stat((strDir + "/" + *it).c_str(), &st) == -1
                 || ((st.st_mode & S_IFMT) != S_IFREG) || it->length() < 3
@@ -92,14 +91,17 @@ int CPythonModule::Reset() {
                 info.obj = PyImport_ImportModule(
                         (loc + "." + it->substr(0, it->length() - 3)).c_str());
 
+		C2C_WW_LOG("PyImport_ImportModule  %s", it->c_str());
                 if (info.obj == NULL) {
-
+		  
                     PyObject *ptype, *pvalue, *ptraceback;
                     PyErr_Fetch(&ptype, &pvalue, &ptraceback);
                     PyObject_Print(ptype, stderr, 0);
                     PyObject_Print(pvalue, stderr, 0);
                     PyObject_Print(ptraceback, stderr, 0);
-
+		    
+		    cerr << "PyImport_ImportModule failed " << *it << endl;
+		    C2C_WW_LOG_ERR(-1, "PyImport_ImportModule failed %s", it->c_str());
                     continue;
                 }
 
@@ -110,7 +112,8 @@ int CPythonModule::Reset() {
                     CModuleInfo info;
                     info.obj = PyImport_ReloadModule(m_mapModuleFile[*it].obj);
                     if (info.obj == NULL) {
-                        cout << "PyImport_ReloadModule failed " << *it << endl;
+                        cerr << "PyImport_ReloadModule failed " << *it << endl;
+			C2C_WW_LOG_ERR(-1, "PyImport_ReloadModule failed %s", it->c_str());
                         PyObject *ptype, *pvalue, *ptraceback;
                         PyErr_Fetch(&ptype, &pvalue, &ptraceback);
                         PyObject_Print(ptype, stderr, 0);
@@ -119,7 +122,7 @@ int CPythonModule::Reset() {
 
                         continue;
                     }
-                    cout << "PyImport_ReloadModule" << *it << endl;
+		    C2C_WW_LOG("PyImport_ReloadModule %s", it->c_str());
                     info.mtime = st.st_mtime;
                     m_mapModuleFile[*it] = info;
                 }
@@ -139,7 +142,8 @@ CPythonModule::CPythonModule() :
     Py_Initialize();
     PyRun_SimpleString("import os\n"
             "import sys\n"
-            "sys.path.append(os.path.dirname(os.getcwd()))\n");
+            "sys.path.append(os.path.dirname(os.getcwd()))\n"
+	    "sys.path.append(os.path.dirname(os.getcwd()) + '/pyservice')\n");
     /* Error checking of pName left out */
     m_pMainModule = PyImport_ImportModule("bbcplatform.python_adaptor");
 }
@@ -156,10 +160,9 @@ int CPythonModule::Dispatch(const string& sController, const string& sAction,
 
     if (m_pMainModule == NULL) {
         cerr << "m_pMainModule is NULL" << endl;
+	C2C_WW_LOG_ERR(-1, "m_pMainModule is NULL sController:%s sAction:%s", sController.c_str(), sAction.c_str());
         return -1;
     }
-    cout << "m_pMainModule != NULL" << endl;
-    
     
     PyObject* pFunc = NULL;
     PyObject* pController = NULL;
@@ -207,9 +210,10 @@ int CPythonModule::Dispatch(const string& sController, const string& sAction,
         if (pResult == NULL)
             throw __LINE__;
     }
-    catch (char* sLine){
-        cerr << sLine << ": PyObject is NULL" << endl;
-        
+    catch (int iLine){
+        cerr << "PyObject is NULL at line:" << iLine << endl;
+	C2C_WW_LOG_ERR(-1, "PyObject is NULL at line:%i sController:%s sAction:%s", iLine, sController.c_str(), sAction.c_str());
+
         Py_XDECREF(pFunc);
         Py_XDECREF(pController);
         Py_XDECREF(pAction);
@@ -222,12 +226,15 @@ int CPythonModule::Dispatch(const string& sController, const string& sAction,
         return -1;
     }
     
-    char* sBuffer = NULL;
-    Py_ssize_t i = 0;
-    PyString_AsStringAndSize(pResult, &sBuffer, &i);
-    sOutputBuffer.assign(sBuffer, i);
 
-    cout << "End Dispatch" << endl;
+    if(PyString_Check(pResult) || PyUnicode_Check(pResult)){
+        char* sBuffer = NULL;
+        Py_ssize_t i = 0;
+	PyString_AsStringAndSize(pResult, &sBuffer, &i);
+	sOutputBuffer.assign(sBuffer, i);
+    }
+
+    C2C_WW_LOG("End Dispatch sController:%s sAction:%s", sController.c_str(), sAction.c_str());
 
     Py_XDECREF(pFunc);
     Py_XDECREF(pController);
