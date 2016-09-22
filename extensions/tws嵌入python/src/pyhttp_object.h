@@ -39,7 +39,10 @@ public:
   template<Args(Type::*func)(void)const>
   static PyObject* GetMethod(PyObject* self, PyObject *args){
     //const std::string typeName(typeid(CPyObjContainer<Type>).name());
-    const std::string typeName = abi::__cxa_demangle(typeid(Type).name(), NULL, NULL, NULL);
+    //    const std::string typeName = abi::__cxa_demangle(typeid(Type).name(), NULL, NULL, NULL);
+    char* realname = abi::__cxa_demangle(typeid(Type).name(), NULL, NULL, NULL);
+    const std::string typeName(realname);
+    free(realname);
     if (typeName != self->ob_type->tp_name){
       PyErr_SetString(PyExc_TypeError, (typeName + " can use " + self->ob_type->tp_name + " method").c_str());
       return NULL;
@@ -63,7 +66,9 @@ public:
   template<void(Type::*func)(Args)>
   static PyObject* SetMethod(PyObject* self, PyObject *args){
     //const std::string typeName(typeid(CPyObjContainer<Type>).name());
-    const std::string typeName = abi::__cxa_demangle(typeid(Type).name(), NULL, NULL, NULL);
+    char* realname = abi::__cxa_demangle(typeid(Type).name(), NULL, NULL, NULL);
+    const std::string typeName(realname);
+    free(realname);
     if (typeName != self->ob_type->tp_name){
       PyErr_SetString(PyExc_TypeError, std::string("Only " + typeName + " can use this method!").c_str());
       return NULL;
@@ -114,7 +119,10 @@ public:
   template<Args(Type::*func)(void)const>
   static PyObject* GetMethod(PyObject* self, PyObject *args){
     //const std::string typeName(typeid(CPyObjContainer<Type>).name());
-    const std::string typeName = abi::__cxa_demangle(typeid(Type).name(), NULL, NULL, NULL);
+    //const std::string typeName = abi::__cxa_demangle(typeid(Type).name(), NULL, NULL, NULL);
+    char* realname = abi::__cxa_demangle(typeid(Type).name(), NULL, NULL, NULL);
+    const std::string typeName(realname);
+    free(realname);
     if (typeName != self->ob_type->tp_name){
       PyErr_SetString(PyExc_TypeError, std::string("Only " + typeName + " can use this method!").c_str());
       return NULL;
@@ -139,7 +147,10 @@ public:
   template<void(Type::*func)(Args)>
   static PyObject* SetMethod(PyObject* self, PyObject *args){
     //const std::string typeName(typeid(CPyObjContainer<Type>).name());
-    const std::string typeName = abi::__cxa_demangle(typeid(Type).name(), NULL, NULL, NULL);
+    //const std::string typeName = abi::__cxa_demangle(typeid(Type).name(), NULL, NULL, NULL);
+    char* realname = abi::__cxa_demangle(typeid(Type).name(), NULL, NULL, NULL);
+    const std::string typeName(realname);
+    free(realname);
     if (typeName != self->ob_type->tp_name){
       PyErr_SetString(PyExc_TypeError, std::string("Only " + typeName + " can use this method!").c_str());
       return NULL;
@@ -185,7 +196,7 @@ inline GenMethod<Type, Out1> FetchArgs(Out1(Type::*func)(void)const)
 
 void PyHttp_dealloc(PyObject *v)
 {
-
+  PyObject_Del(v);
 }
 
 int PyHttp_compare(PyObject *v, PyObject *w)
@@ -202,7 +213,10 @@ PyObject * PyHttp_repr(PyObject *v)
 
 PyObject* GetVal(PyObject* self, PyObject *args){
     
-    const std::string typeName = abi::__cxa_demangle(typeid(CActionParams).name(), NULL, NULL, NULL);
+  //const std::string typeName = abi::__cxa_demangle(typeid(CActionParams).name(), NULL, NULL, NULL);
+    char* realname = abi::__cxa_demangle(typeid(CActionParams).name(), NULL, NULL, NULL);
+    const std::string typeName(realname);
+    free(realname);
 
     if (typeName != self->ob_type->tp_name){
         PyErr_SetString(PyExc_TypeError, (typeName + " can use " + self->ob_type->tp_name + " method").c_str());
@@ -244,7 +258,10 @@ PyObject* GetVal(PyObject* self, PyObject *args){
 
 PyObject* GetCookieVal(PyObject* self, PyObject *args){
     
-    const std::string typeName = abi::__cxa_demangle(typeid(CActionParams).name(), NULL, NULL, NULL);
+  //const std::string typeName = abi::__cxa_demangle(typeid(CActionParams).name(), NULL, NULL, NULL);
+    char* realname = abi::__cxa_demangle(typeid(CActionParams).name(), NULL, NULL, NULL);
+    const std::string typeName(realname);
+    free(realname);
 
     if (typeName != self->ob_type->tp_name){
         PyErr_SetString(PyExc_TypeError, (typeName + " can use " + self->ob_type->tp_name + " method").c_str());
@@ -281,7 +298,7 @@ PyTypeObject* GetActionParamsType()
 
   //const char* name = abi::__cxa_demangle(typeid(CPyObjContainer<CHttpRequest2>).name(), NULL, NULL, NULL);
   //const char* name = typeid(CPyObjContainer<CHttpRequest2>).name();
-  const char* name = abi::__cxa_demangle(typeid(CActionParams).name(), NULL, NULL, NULL);
+  static const char* name = abi::__cxa_demangle(typeid(CActionParams).name(), NULL, NULL, NULL);
 
   std::cout << name << std::endl;
 
@@ -376,8 +393,10 @@ PyTypeObject* GetActionParamsType()
 
 PyObject* UpdateCookieVal(PyObject* self, PyObject *args)
 {
-    const std::string typeName = abi::__cxa_demangle(typeid(CWebViewData).name(), NULL, NULL, NULL);
-
+  //const std::string typeName = abi::__cxa_demangle(typeid(CWebViewData).name(), NULL, NULL, NULL);
+    char* realname = abi::__cxa_demangle(typeid(CWebViewData).name(), NULL, NULL, NULL);
+    const std::string typeName(realname);
+    free(realname);
     if (typeName != self->ob_type->tp_name){
         PyErr_SetString(PyExc_TypeError, std::string("Only " + typeName + " can use this method!").c_str());
         return NULL;
@@ -400,8 +419,10 @@ PyObject* UpdateCookieVal(PyObject* self, PyObject *args)
 
 PyObject* DelCookieVal(PyObject* self, PyObject *args)
 {
-    const std::string typeName = abi::__cxa_demangle(typeid(CWebViewData).name(), NULL, NULL, NULL);
-
+  //    const std::string typeName = abi::__cxa_demangle(typeid(CWebViewData).name(), NULL, NULL, NULL);
+    char* realname = abi::__cxa_demangle(typeid(CWebViewData).name(), NULL, NULL, NULL);
+    const std::string typeName(realname);
+    free(realname);
     if (typeName != self->ob_type->tp_name){
         PyErr_SetString(PyExc_TypeError, std::string("Only " + typeName + " can use this method!").c_str());
         return NULL;
@@ -426,8 +447,10 @@ PyObject* DelCookieVal(PyObject* self, PyObject *args)
 
 PyObject* RemoveCookieVal(PyObject* self, PyObject *args)
 {
-    const std::string typeName = abi::__cxa_demangle(typeid(CWebViewData).name(), NULL, NULL, NULL);
-
+  //    const std::string typeName = abi::__cxa_demangle(typeid(CWebViewData).name(), NULL, NULL, NULL);
+    char* realname = abi::__cxa_demangle(typeid(CWebViewData).name(), NULL, NULL, NULL);
+    const std::string typeName(realname);
+    free(realname);
     if (typeName != self->ob_type->tp_name){
         PyErr_SetString(PyExc_TypeError, std::string("Only " + typeName + " can use this method!").c_str());
         return NULL;
@@ -457,7 +480,7 @@ PyTypeObject* GetWebViewDataType()
 
   //const char* name = abi::__cxa_demangle(typeid(CPyObjContainer<CHttpRequest2>).name(), NULL, NULL, NULL);
   //const char* name = typeid(CPyObjContainer<CHttpRequest2>).name();
-  const char* name = abi::__cxa_demangle(typeid(CWebViewData).name(), NULL, NULL, NULL);
+  static const char* name = abi::__cxa_demangle(typeid(CWebViewData).name(), NULL, NULL, NULL);
   std::cout << name << std::endl;
 
 
@@ -558,7 +581,7 @@ PyTypeObject* GetWebSvcCntlType()
 
   //const char* name = abi::__cxa_demangle(typeid(CPyObjContainer<CHttpRequest2>).name(), NULL, NULL, NULL);
   //const char* name = typeid(CPyObjContainer<CHttpRequest2>).name();
-  const char* name = abi::__cxa_demangle(typeid(CWebSvcCntl).name(), NULL, NULL, NULL);
+  static const char* name = abi::__cxa_demangle(typeid(CWebSvcCntl).name(), NULL, NULL, NULL);
 
   std::cout << name << std::endl;
 

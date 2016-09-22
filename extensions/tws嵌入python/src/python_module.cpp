@@ -185,12 +185,12 @@ int CPythonModule::Dispatch(const string& sController, const string& sAction,
         pAction = PyString_FromString(sAction.c_str());
         if (pAction == NULL)
             throw __LINE__;
-
+	
         pParams = (PyObject*) PyObject_NEW(CPyObjContainer<CActionParams>,
                 GetActionParamsType());
         if (pParams == NULL)
             throw __LINE__;
-
+       
         pData = (PyObject*) PyObject_NEW(CPyObjContainer<CWebViewData>,
                 GetWebViewDataType());
         if (pData == NULL)
@@ -209,6 +209,7 @@ int CPythonModule::Dispatch(const string& sController, const string& sAction,
                 pAction, pParams, pData, pCntl, NULL);
         if (pResult == NULL)
             throw __LINE__;
+	
     }
     catch (int iLine){
         cerr << "PyObject is NULL at line:" << iLine << endl;
@@ -220,6 +221,7 @@ int CPythonModule::Dispatch(const string& sController, const string& sAction,
         Py_XDECREF(pParams);
         Py_XDECREF(pData);
         Py_XDECREF(pCntl);
+	Py_XDECREF(pResult);
         
         PyErr_Print();
         
@@ -242,7 +244,8 @@ int CPythonModule::Dispatch(const string& sController, const string& sAction,
     Py_XDECREF(pParams);
     Py_XDECREF(pData);
     Py_XDECREF(pCntl);
-    
+    Py_XDECREF(pResult);
+
     return 0;
 }
 
